@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Base */
+    --color-bg:           #FAFAF8;   /* warm off-white, not pure #fff */
+    --color-bg-secondary: #F2F1EE;   /* subtle parchment for card surfaces */
+    --color-bg-tertiary:  #E8E6E1;   /* borders, dividers */
+
+    /* Ink */
+    --color-text-primary:   #111110;  /* near-black, not pure black */
+    --color-text-secondary: #5C5B57;  /* muted body text */
+    --color-text-tertiary:  #9C9A94;  /* placeholders, hints */
+
+    /* Accent — pick ONE bold accent and commit */
+    --color-accent:         #1A1A1A;  /* use ink itself as the accent */
+    --color-accent-warm:    #C9622F;  /* a single warm pop — terracotta or rust */
+
+    /* Functional */
+    --color-success:  #3D7A5E;
+    --color-warning:  #B87D2E;
+    --color-error:    #B84040;
+
+    /* Borders & Shadows */
+    --border-thin:    1px solid #E8E6E1;
+    --border-medium:  1.5px solid #D4D2CC;
+    --shadow-sm:      0 1px 3px rgba(17,17,16,0.06);
+    --shadow-md:      0 4px 16px rgba(17,17,16,0.08);
+    --shadow-lg:      0 12px 40px rgba(17,17,16,0.10);
+
+    /* Radius — restrained */
+    --radius-sm:  4px;
+    --radius-md:  8px;
+    --radius-lg:  12px;
+    --radius-pill: 999px;
+
+    /* Spacing scale */
+    --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+    --space-5: 20px; --space-6: 24px; --space-8: 32px; --space-10: 40px;
+    --space-12: 48px; --space-16: 64px; --space-20: 80px;
+
+    /* Typographic Scale */
+    --font-xs: 0.75rem; /* 12px */
+    --font-sm: 0.875rem; /* 14px */
+    --font-base: 1rem; /* 16px */
+    --font-lg: 1.125rem; /* 18px */
+    --font-xl: 1.25rem; /* 20px */
+    --font-2xl: 1.5rem; /* 24px */
+    --font-3xl: 1.875rem; /* 30px */
+    --font-4xl: 2.25rem; /* 36px */
+  }
+
+  body {
+    @apply bg-bg text-text-primary font-sans;
+    background-color: var(--color-bg);
+    min-height: 100vh;
+    line-height: 1.7; /* Generous line-height for body text */
+  }
+}
+
+@layer utilities {
+  .animate-fade-up {
+    animation: fadeUp 0.4s ease-out forwards;
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  
+  @keyframes fadeUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}

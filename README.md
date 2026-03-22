@@ -40,7 +40,7 @@ The platform transforms passive study materials (videos, PDFs, notes) into inter
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/pnnv/foos.git
+git clone https://github.com/spr7a/study-craft.git
 cd foos
 ```
 

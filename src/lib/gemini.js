@@ -48,11 +48,20 @@ export async function askGemini(prompt, context = "") {
 // NEW FUNCTION: Open conversational chat using Gemini
 export async function chatGemini(prompt, history = [], context = "") {
   try {
-    const chat = model.startChat({
-      history: history.map(m => ({
-        role: m.role === 'user' ? 'user' : 'model',
+    const normalizedHistory = [];
+    for (const m of history) {
+      const role = m.role === 'user' ? 'user' : 'model';
+      if (normalizedHistory.length === 0 && role !== 'user') {
+        continue; // ensure history starts with a user message
+      }
+      normalizedHistory.push({
+        role,
         parts: [{ text: m.content }],
-      })),
+      });
+    }
+
+    const chat = model.startChat({
+      history: normalizedHistory,
       generationConfig: {
         maxOutputTokens: 2000,
       },

@@ -1,11 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { chatGemini } from '../lib/gemini';
 import { useStore } from '../lib/store';
 import { Send, FileText, Bot, User, Loader2, Sparkles } from 'lucide-react';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
 import FileUploadModal from './FileUploadModal';
+import { sendTutorMessage } from '../services/tutor';
 
 export default function AITutor() {
   const [messages, setMessages] = useState([
@@ -16,6 +16,8 @@ export default function AITutor() {
   const [context, setContext] = useState('');
   const [contextName, setContextName] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [weakConcepts, setWeakConcepts] = useState([]);
+  const [errorMessage, setErrorMessage] = useState('');
   
   const addAiTutorSession = useStore(state => state.addAiTutorSession);
   const [sessionStarted, setSessionStarted] = useState(false);
@@ -32,6 +34,7 @@ export default function AITutor() {
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
+    setErrorMessage('');
     
     if (!sessionStarted) {
       addAiTutorSession(contextName || 'General Help');
@@ -49,10 +52,21 @@ export default function AITutor() {
       content: m.content
     }));
 
-    const responseText = await chatGemini(userMessage.content, history, context);
-    
-    setMessages([...newMessages, { role: 'assistant', content: responseText }]);
-    setIsLoading(false);
+    try {
+      const response = await sendTutorMessage({
+        message: userMessage.content,
+        history,
+        context,
+      });
+      setWeakConcepts(response.weak_concepts || []);
+      setMessages([...newMessages, { role: 'assistant', content: response.reply }]);
+    } catch (err) {
+      const fallback = err instanceof Error ? err.message : 'Tutor is unavailable';
+      setErrorMessage(fallback);
+      setMessages([...newMessages, { role: 'assistant', content: `⚠️ ${fallback}` }]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleContextExtracted = (text, fileName) => {
@@ -81,6 +95,15 @@ export default function AITutor() {
             )}
           </h1>
           <p className="text-sm text-text-secondary mt-2">Chat naturally with the tutor, or provide custom reference material.</p>
+          {weakConcepts.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-4">
+              {weakConcepts.map((concept, idx) => (
+                <span key={`${concept.name}-${idx}`} className="text-[11px] uppercase tracking-[0.08em] px-2 py-0.5 rounded-full border border-warning/40 bg-warning/10 text-warning">
+                  Weak: {concept.name}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
         <Button variant="secondary" onClick={() => setIsModalOpen(true)}>
           <FileText size={16} className="mr-2 text-text-primary" />
@@ -145,6 +168,9 @@ export default function AITutor() {
             {isLoading ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
           </Button>
         </div>
+        {errorMessage && (
+          <p className="text-xs text-error mt-2">{errorMessage}</p>
+        )}
       </div>
 
       <FileUploadModal 
